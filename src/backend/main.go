@@ -1,5 +1,9 @@
-package backend
+package main
 
 func main() {
-	println("Hello, World!")
+	println(GetHelloWorld())
+}
+
+func GetHelloWorld() string {
+	return "Hello, World!"
 }
