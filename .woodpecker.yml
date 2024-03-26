@@ -52,3 +52,11 @@ steps:
       target: main
     when:
       - event: tag
+  
+  linting:
+    image: woodpeckerci/plugin-reviewdog-golangci-lint
+    settings:
+      token:
+        from_secret: GITEA_ACCESS_TOKEN
+    when:
+      - event: pull_request
