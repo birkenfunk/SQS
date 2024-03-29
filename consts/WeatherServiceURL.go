@@ -1,4 +1,4 @@
-package Consts
+package consts
 
 var weatherServiceURL string
 
