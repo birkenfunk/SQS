@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetHelloWorld(t *testing.T) {
 	tests := []struct {

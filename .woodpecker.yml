@@ -5,6 +5,8 @@ variables:
 steps:
   build-backend:
     image: *backend_env_image
+    environment:
+      - ENV=test
     commands:
       - make linux
     when:
@@ -12,6 +14,8 @@ steps:
 
   build-deploy-backend:
     image: *backend_env_image
+    environment:
+      - ENV=test
     commands:
       - make generate_all
     when:
@@ -19,6 +23,8 @@ steps:
 
   test-backend:
     image: *backend_env_image
+    environment:
+      - ENV=test
     commands:
       - make test
 
