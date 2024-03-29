@@ -1,6 +1,8 @@
 package service
 
+import "codeberg.org/Birkenfunk/SQS/dtos"
+
 type IWeatherService interface {
-	GetWeather(location string) (string, error)
-	GetHealth() (string, error)
+	GetWeather(location string) (*dtos.WeatherDto, error)
+	GetHealth() error
 }
