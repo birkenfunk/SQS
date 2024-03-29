@@ -1,26 +1,26 @@
 package main
 
 import (
-	"codeberg.org/Birkenfunk/SQS/consts"
 	"flag"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"codeberg.org/Birkenfunk/SQS/consts"
+	"github.com/joho/godotenv"
 )
 
 func init() {
 	env := os.Getenv("ENV")
 	var err error
 	if env == "test" {
-		godotenv.Load("test.env")
+		err = godotenv.Load("test.env")
 	} else {
-		godotenv.Load()
+		err = godotenv.Load()
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
-	//write to file
 }
 
 func main() {
