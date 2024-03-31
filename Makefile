@@ -23,4 +23,18 @@ test:
 clean:
 	rm -rf build
 
+test_with_coverage:
+	mkdir build -p
+	go test ./... -coverprofile=build/profile.cov ./...
+
+coverage: test_with_coverage
+	go tool cover -o build/coverage.html -html build/profile.cov
+	go tool cover -o build/coverage.md -func build/profile.cov
+	sed -i 's/^\(total\)/# \1/g' build/coverage.md
+	sed -i '/^#/!s/\(.\+\)/- \1/g' build/coverage.md
+	tail -n 1 build/coverage.md > build/coverage.md.tmp
+	head -n -1 build/coverage.md >> build/coverage.md.tmp
+	mv build/coverage.md.tmp build/coverage.md
+
+
 .PHONY: generate_linux generate_windows generate_mac generate_all clean docker_image podman_image test
