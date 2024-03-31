@@ -9,3 +9,13 @@ func SetWeatherServiceURL(url string) {
 func GetWeatherServiceURL() string {
 	return weatherServiceURL
 }
+
+var port string
+
+func GetPort() string {
+	return port
+}
+
+func SetPortFromString(p string) {
+	port = p
+}

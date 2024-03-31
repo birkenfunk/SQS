@@ -2,10 +2,11 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"codeberg.org/Birkenfunk/SQS/consts"
-	"codeberg.org/Birkenfunk/SQS/service"
+	"codeberg.org/Birkenfunk/SQS/presentation"
 	"github.com/joho/godotenv"
 )
 
@@ -21,20 +22,17 @@ func init() {
 		log.Fatal(err)
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
+	consts.SetPortFromString(os.Getenv("PORT"))
 }
 
 func main() {
-	var ws service.IWeatherService = service.WeatherService{}
-	// Check if the weather service is available
-	err := ws.GetHealth()
+	router := presentation.InitRouter()
+
+	// Start the server
+	err := http.ListenAndServe(":"+consts.GetPort(), router)
 	if err != nil {
 		log.Fatal(err)
 	}
-	weather, err := ws.GetWeather("Berlin")
-	if err != nil {
-		log.Fatal(err)
-	}
-	println(weather.String())
 }
 
 func GetHelloWorld() string {
