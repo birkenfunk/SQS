@@ -28,6 +28,13 @@ steps:
     commands:
       - make test
 
+  coverage:
+    image: *backend_env_image
+    environment:
+      - ENV=test
+    commands:
+      - make coverage
+
   deploy:
     image: *docker_plugin
     settings:
