@@ -1,12 +1,12 @@
 APP_NAME=weather-proxy-api
 
-linux: switchToBackend
+linux:
 	go build -o build/linux/$(APP_NAME)-linux main.go
 
-windows: switchToBackend
+windows:
 	GOOS=windows GOARCH=amd64 go build -o build/windows/$(APP_NAME)-windows.exe main.go
 
-mac: switchToBackend
+mac:
 	GOOS=darwin GOARCH=amd64 go build -o build/mac/$(APP_NAME)-mac main.go
 
 docker_image: linux
@@ -17,10 +17,10 @@ podman_image: linux
 
 generate_all: linux windows mac
 
-test: switchToBackend
+test:
 	go test ./...
 
-clean: switchToBackend
+clean:
 	rm -rf build
 
-.PHONY: generate_linux generate_windows generate_mac generate_all clean docker_image podman_image test switchToBackend
+.PHONY: generate_linux generate_windows generate_mac generate_all clean docker_image podman_image test
