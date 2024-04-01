@@ -35,3 +35,7 @@ func WeatherHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func SetWeather(w logic.IWeather) {
+	weather = w
+}
