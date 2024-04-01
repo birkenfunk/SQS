@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 
@@ -19,10 +19,11 @@ func init() {
 		err = godotenv.Load()
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
 	consts.SetPortFromString(os.Getenv("PORT"))
+
 }
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
 	// Start the server
 	err := http.ListenAndServe(":"+consts.GetPort(), router)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 }
 

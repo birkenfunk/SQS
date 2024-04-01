@@ -1,4 +1,4 @@
-package business
+package handler
 
 import "net/http"
 
