@@ -35,6 +35,16 @@ steps:
     commands:
       - make coverage
 
+  sonarqube_analysis:
+    image: codeberg.org/birkenfunk/sonarscanner:latest
+    environment:
+      SONAR_TOKEN:
+        from_secret: SONAR_TOKEN
+    commands:
+      - sonar-scanner -Dsonar.projectKey=SQS -Dsonar.sources=. -Dsonar.host.url=https://sonarqube.birkenfunk.de
+    when:
+      - event: push
+
   deploy:
     image: *docker_plugin
     settings:
