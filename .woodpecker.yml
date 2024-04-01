@@ -88,4 +88,4 @@ services:
   - name: external-api
     image: codeberg.org/birkenfunk/sqs-external-api:latest
     ports:
-      - '3000:3000'
+      - 3000
