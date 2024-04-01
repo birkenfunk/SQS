@@ -33,28 +33,30 @@ func (wd WeatherDto) Equals(other *WeatherDto) bool {
 		wd.Date == other.Date
 }
 
+const NOT = " != "
+
 func (wd WeatherDto) Diff(other *WeatherDto) string {
 	diff := ""
 	if wd.Location != other.Location {
-		diff += "Location: " + wd.Location + " != " + other.Location + "\n"
+		diff += "Location: " + wd.Location + NOT + other.Location + "\n"
 	}
 	if wd.Temperature != other.Temperature {
-		diff += "Temperature: " + wd.Temperature + " != " + other.Temperature + "\n"
+		diff += "Temperature: " + wd.Temperature + NOT + other.Temperature + "\n"
 	}
 	if wd.Humidity != other.Humidity {
-		diff += "Humidity: " + wd.Humidity + " != " + other.Humidity + "\n"
+		diff += "Humidity: " + wd.Humidity + NOT + other.Humidity + "\n"
 	}
 	if wd.SunHours != other.SunHours {
-		diff += "SunHours: " + strconv.Itoa(wd.SunHours) + " != " + strconv.Itoa(other.SunHours) + "\n"
+		diff += "SunHours: " + strconv.Itoa(wd.SunHours) + NOT + strconv.Itoa(other.SunHours) + "\n"
 	}
 	if wd.WindSpeed != other.WindSpeed {
-		diff += "WindSpeed: " + wd.WindSpeed + " != " + other.WindSpeed + "\n"
+		diff += "WindSpeed: " + wd.WindSpeed + NOT + other.WindSpeed + "\n"
 	}
 	if wd.Weather != other.Weather {
-		diff += "Weather: " + wd.Weather + " != " + other.Weather + "\n"
+		diff += "Weather: " + wd.Weather + NOT + other.Weather + "\n"
 	}
 	if wd.Date != other.Date {
-		diff += "Date: " + wd.Date + " != " + other.Date + "\n"
+		diff += "Date: " + wd.Date + NOT + other.Date + "\n"
 	}
 	return diff
 }
