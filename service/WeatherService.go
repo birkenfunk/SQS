@@ -16,7 +16,7 @@ type WeatherService struct{}
 
 var errHealthEndpointAvailable = errors.New("health endpoint is not available")
 
-func (ws WeatherService) GetHealth() error {
+func (ws *WeatherService) GetHealth() error {
 	request, err := http.NewRequest("GET", consts.GetWeatherServiceURL()+"/api/v1/health", nil)
 	if err != nil {
 		log.Error().Msgf("client: could not create request: %s\n", err)
@@ -40,7 +40,7 @@ func (ws WeatherService) GetHealth() error {
 	return nil
 }
 
-func (ws WeatherService) GetWeather(location string) (*dtos.WeatherDto, error) {
+func (ws *WeatherService) GetWeather(location string) (*dtos.WeatherDto, error) {
 	var weatherDto dtos.WeatherDto
 	request, err := http.NewRequest("GET", consts.GetWeatherServiceURL()+"/api/v1/weather/"+location, nil)
 	if err != nil {
