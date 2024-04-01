@@ -83,3 +83,9 @@ steps:
         from_secret: GITEA_ACCESS_TOKEN
     when:
       - event: pull_request
+
+services:
+  - name: external-api
+    image: codeberg.org/birkenfunk/sqs-external-api:latest
+    ports:
+      - '3000:3000'
