@@ -71,6 +71,7 @@ func TestWeatherService_GetWeather(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			consts.SetWeatherServiceURL(tt.serverUrl)
 			ws := &WeatherService{}
 			got, err := ws.GetWeather(tt.args.location)
 			if (err != nil) != tt.wantErr {
