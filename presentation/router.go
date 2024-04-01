@@ -25,6 +25,6 @@ func v1Router() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/health", business.HealthHandler)
-
+	r.Get("/weather", business.WeatherHandler)
 	return r
 }
