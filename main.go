@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 
 	"codeberg.org/Birkenfunk/SQS/consts"
 	"codeberg.org/Birkenfunk/SQS/presentation"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
@@ -23,7 +23,6 @@ func init() {
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
 	consts.SetPortFromString(os.Getenv("PORT"))
-
 }
 
 func main() {

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 
 	"codeberg.org/Birkenfunk/SQS/consts"
 	"codeberg.org/Birkenfunk/SQS/dtos"
+	"github.com/rs/zerolog/log"
 )
 
 type WeatherService struct{}

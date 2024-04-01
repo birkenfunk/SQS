@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"codeberg.org/Birkenfunk/SQS/business/logic"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"codeberg.org/Birkenfunk/SQS/business/logic"
+	"github.com/go-chi/chi/v5"
 )
 
 var weather logic.IWeather = &logic.Weather{}

@@ -9,7 +9,7 @@ import (
 func InitRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	//Add Middleware
+	// Add Middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
