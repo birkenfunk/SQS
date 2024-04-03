@@ -4,6 +4,7 @@ go 1.21.8
 
 require (
 	github.com/go-chi/chi/v5 v5.0.12
+	github.com/gomodule/redigo v1.9.2
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.9.0

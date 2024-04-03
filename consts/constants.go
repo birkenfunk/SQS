@@ -19,3 +19,13 @@ func GetPort() string {
 func SetPortFromString(p string) {
 	port = p
 }
+
+var dbURL string
+
+func SetDBURL(url string) {
+	dbURL = url
+}
+
+func GetDBURL() string {
+	return dbURL
+}

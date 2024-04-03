@@ -23,6 +23,8 @@ func init() {
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
 	consts.SetPortFromString(os.Getenv("PORT"))
+	consts.SetDBURL(os.Getenv("REDIS_URL"))
+	log.Debug().Msg("Initialized")
 }
 
 func main() {

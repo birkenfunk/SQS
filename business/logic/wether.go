@@ -2,6 +2,7 @@ package logic
 
 import (
 	"codeberg.org/Birkenfunk/SQS/dtos"
+	"codeberg.org/Birkenfunk/SQS/persistence"
 	"codeberg.org/Birkenfunk/SQS/service"
 	"github.com/rs/zerolog/log"
 )
@@ -12,17 +13,33 @@ type IWeather interface {
 
 type Weather struct {
 	weatherService service.IWeatherService
+	database       persistence.IDatabase
 }
 
 func NewWeather() IWeather {
-	return &Weather{weatherService: service.NewWeatherService()}
+	return &Weather{
+		weatherService: service.NewWeatherService(),
+		database: persistence.NewDatabase(),
+	}
 }
 
 func (w *Weather) GetWeather(location string) *dtos.WeatherDto {
 	result, err := w.weatherService.GetWeather(location)
+	weather, err := w.database.GetWeatherByLocation(location)
+	if err != nil {
+		log.Err(err).Msg("Failed to get weather from database")
+	}
+	if weather != nil {
+		return weather
+	}
+	result, err = w.weatherService.GetWeather(location)
 	if err != nil {
 		log.Err(err).Msg("Failed to get weather")
 		return nil
+	}
+	err = w.database.AddWeather(result)
+	if err != nil {
+		log.Err(err).Msg("Failed to save weather to database")
 	}
 	return result
 }
