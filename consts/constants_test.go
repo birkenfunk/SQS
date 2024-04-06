@@ -19,7 +19,7 @@ func (suite *ConstantsSuite) SetupTest() {
 	weatherServiceURL = ""
 }
 
-func (suite *ConstantsSuite) TearDownAllSuite() {
+func (suite *ConstantsSuite) TearDownSuite() {
 	port = ""
 	weatherServiceURL = ""
 }
