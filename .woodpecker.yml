@@ -25,15 +25,17 @@ steps:
     image: *backend_env_image
     environment:
       - ENV=test
+      - REDIS_ADDR=cache:6379
+      - EXTERNAL_API=http://external-api:3000
     commands:
-      - make test
+      - make test_with_coverage
 
   coverage:
     image: *backend_env_image
     environment:
       - ENV=test
     commands:
-      - make coverage
+      - make coverage_only
 
   sonarqube_analysis:
     image: codeberg.org/birkenfunk/sonarscanner:latest
@@ -89,3 +91,10 @@ services:
     image: codeberg.org/birkenfunk/sqs-external-api:latest
     ports:
       - 3000
+  - name: cache
+    image: redis/redis-stack:7.2.0-v9
+    ports:
+      - 6379
+      - 8001
+    environment:
+      - REDIS_ARGS="--requirepass mypassword"
