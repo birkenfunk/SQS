@@ -14,6 +14,16 @@ func TestConstantsSuite(t *testing.T) {
 	suite.Run(t, &ConstantsSuite{})
 }
 
+func (suite *ConstantsSuite) SetupTest() {
+	port = ""
+	weatherServiceURL = ""
+}
+
+func (suite *ConstantsSuite) TearDownAllSuite() {
+	port = ""
+	weatherServiceURL = ""
+}
+
 func (suite *ConstantsSuite) TestGetPort() {
 	// given:
 	port = "8080"
