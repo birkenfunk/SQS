@@ -1,11 +1,11 @@
 package logic
 
 import (
-	"codeberg.org/Birkenfunk/SQS/dtos"
-	"codeberg.org/Birkenfunk/SQS/mocks"
 	"fmt"
 	"testing"
 
+	"codeberg.org/Birkenfunk/SQS/dtos"
+	"codeberg.org/Birkenfunk/SQS/mocks"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -43,11 +43,11 @@ var err = fmt.Errorf("failed to get weather")
 func (suite *WeatherSuite) TestGetWeather_Success() {
 	suite.weatherMock.On("GetWeather", "Berlin").Return(&suite.weatherDto, nil)
 	result := suite.weather.GetWeather("Berlin")
-	suite.Assert().Equal(&suite.weatherDto, result)
+	suite.Equal(&suite.weatherDto, result)
 }
 
 func (suite *WeatherSuite) TestGetWeather_Fail() {
 	suite.weatherMock.On("GetWeather", "Berlin").Return(nil, err)
 	result := suite.weather.GetWeather("Berlin")
-	suite.Assert().Nil(result)
+	suite.Nil(result)
 }

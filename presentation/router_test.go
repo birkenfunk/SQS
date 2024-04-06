@@ -1,16 +1,16 @@
 package presentation
 
 import (
-	"codeberg.org/Birkenfunk/SQS/mocks"
 	"encoding/json"
-	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"codeberg.org/Birkenfunk/SQS/business/handler"
 	"codeberg.org/Birkenfunk/SQS/dtos"
+	"codeberg.org/Birkenfunk/SQS/mocks"
 	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/suite"
 )
 
 type RouterSuite struct {

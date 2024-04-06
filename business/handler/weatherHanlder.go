@@ -8,8 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var weather logic.IWeather = logic.NewWeather()
-
 type IWeatherHandler interface {
 	GetWeatherHandler(rw http.ResponseWriter, r *http.Request)
 }
