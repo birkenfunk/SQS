@@ -12,7 +12,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type WeatherService struct{}
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type WeatherService struct {
+	client HTTPClient
+}
+
+func NewWeatherService() IWeatherService {
+	return &WeatherService{client: http.DefaultClient}
+}
 
 var errHealthEndpointAvailable = errors.New("health endpoint is not available")
 
@@ -23,7 +33,7 @@ func (ws *WeatherService) GetHealth() error {
 		return err
 	}
 
-	res, err := http.DefaultClient.Do(request)
+	res, err := ws.client.Do(request)
 	if err != nil {
 		log.Error().Msgf("client: could not send request: %s\n", err)
 		return err
@@ -48,7 +58,7 @@ func (ws *WeatherService) GetWeather(location string) (*dtos.WeatherDto, error) 
 		return nil, err
 	}
 
-	res, err := http.DefaultClient.Do(request)
+	res, err := ws.client.Do(request)
 	if err != nil {
 		log.Error().Msgf("client: could not send request: %s\n", err)
 		return nil, err

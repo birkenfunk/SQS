@@ -9,28 +9,28 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type WeatherServiceIntegationSuite struct {
+type WeatherServiceIntegrationSuite struct {
 	suite.Suite
 	externalAPI string
 	ws          *WeatherService
 }
 
-func TestWeatherServiceSuite(t *testing.T) {
-	suite.Run(t, new(WeatherServiceIntegationSuite))
+func TestWeatherServiceIntegrationSuite(t *testing.T) {
+	suite.Run(t, new(WeatherServiceIntegrationSuite))
 }
 
-func (wsis *WeatherServiceIntegationSuite) SetupSuite() {
+func (wsis *WeatherServiceIntegrationSuite) SetupSuite() {
 	externalAPI, ok := os.LookupEnv("EXTERNAL_API")
 	if !ok {
 		externalAPI = "http://localhost:3000"
 	}
 	wsis.externalAPI = externalAPI
-	wsis.ws = &WeatherService{}
+	wsis.ws = NewWeatherService().(*WeatherService)
 }
 
 // TestGetHealth_Success tests the GetHealth function with a successful external API
 // If the Test Fails you should check if the external API is running under localhost:3000 or the URL you specified in the EXTERNAL_API environment variable
-func (wsis *WeatherServiceIntegationSuite) TestGetHealth_Success() {
+func (wsis *WeatherServiceIntegrationSuite) TestGetHealth_Success() {
 	// given:
 	consts.SetWeatherServiceURL(wsis.externalAPI)
 
@@ -43,7 +43,7 @@ func (wsis *WeatherServiceIntegationSuite) TestGetHealth_Success() {
 
 // TestGetHealth_Fail tests the GetHealth function with a failing external API
 // If the Test Fails you should check if the external API is running under localhost:3000 or the URL you specified in the EXTERNAL_API environment variable
-func (wsis *WeatherServiceIntegationSuite) TestGetHealth_Fail() {
+func (wsis *WeatherServiceIntegrationSuite) TestGetHealth_Fail() {
 	// given:
 	consts.SetWeatherServiceURL(wsis.externalAPI + "1")
 
@@ -56,7 +56,7 @@ func (wsis *WeatherServiceIntegationSuite) TestGetHealth_Fail() {
 
 // TestGetWeather_Success tests the GetWeather function with a successful external API
 // If the Test Fails you should check if the external API is running under localhost:3000 or the URL you specified in the EXTERNAL_API environment variable
-func (wsis *WeatherServiceIntegationSuite) TestGetWeather_Success() {
+func (wsis *WeatherServiceIntegrationSuite) TestGetWeather_Success() {
 	// given:
 	consts.SetWeatherServiceURL(wsis.externalAPI)
 
@@ -78,7 +78,7 @@ func (wsis *WeatherServiceIntegationSuite) TestGetWeather_Success() {
 
 // TestGetWeather_Fail tests the GetWeather function with a failing external API
 // If the Test Fails you should check if the external API is running under localhost:3000 or the URL you specified in the EXTERNAL_API environment variable
-func (wsis *WeatherServiceIntegationSuite) TestGetWeather_Fail() {
+func (wsis *WeatherServiceIntegrationSuite) TestGetWeather_Fail() {
 	// given:
 	consts.SetWeatherServiceURL(wsis.externalAPI + "1")
 

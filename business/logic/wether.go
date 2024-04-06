@@ -15,7 +15,7 @@ type Weather struct {
 }
 
 func NewWeather() IWeather {
-	return &Weather{}
+	return &Weather{weatherService: service.NewWeatherService()}
 }
 
 func (w *Weather) GetWeather(location string) *dtos.WeatherDto {
