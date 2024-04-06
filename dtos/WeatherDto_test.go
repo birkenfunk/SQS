@@ -43,7 +43,7 @@ func (suite *WeatherDtoSuite) SetupTest() {
 		SunHours:    10,
 		WindSpeed:   "3m/s",
 		Weather:     "Cloudy",
-		Date:        "2021-09-01",
+		Date:        "2021-08-01",
 	}
 }
 
@@ -64,7 +64,7 @@ func (suite *WeatherDtoSuite) TestWeatherDto_String() {
 }
 
 func (suite *WeatherDtoSuite) TestWeatherDto_Diff() {
-	suite.Equal("Location: Berlin != Paris\nTemperature: 20°C != 25°C\nHumidity: 50% != 60%\nSunHours: 8 != 10\nWindSpeed: 5m/s != 3m/s\nWeather: Sunny != Cloudy\n", suite.dto.Diff(suite.dtoDiff))
+	suite.Equal("Location: Berlin != Paris\nTemperature: 20°C != 25°C\nHumidity: 50% != 60%\nSunHours: 8 != 10\nWindSpeed: 5m/s != 3m/s\nWeather: Sunny != Cloudy\nDate: 2021-09-01 != 2021-08-01\n", suite.dto.Diff(suite.dtoDiff))
 }
 
 func (suite *WeatherDtoSuite) TestWeatherDto_Diff_Same() {
