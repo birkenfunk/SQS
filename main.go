@@ -26,10 +26,11 @@ func init() {
 }
 
 func main() {
-	router := presentation.InitRouter()
+	router := presentation.NewRouter()
+	routes := router.InitRouter()
 
 	// Start the server
-	err := http.ListenAndServe(":"+consts.GetPort(), router)
+	err := http.ListenAndServe(":"+consts.GetPort(), routes)
 	if err != nil {
 		log.Fatal().Err(err)
 	}

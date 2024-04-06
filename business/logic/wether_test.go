@@ -1,72 +1,53 @@
 package logic
 
 import (
+	"codeberg.org/Birkenfunk/SQS/dtos"
+	"codeberg.org/Birkenfunk/SQS/mocks"
 	"fmt"
-	"reflect"
 	"testing"
 
-	"codeberg.org/Birkenfunk/SQS/dtos"
-	"codeberg.org/Birkenfunk/SQS/service"
+	"github.com/stretchr/testify/suite"
 )
+
+type WeatherSuite struct {
+	suite.Suite
+	weather     IWeather
+	weatherMock *mocks.IWeatherService
+	weatherDto  dtos.WeatherDto
+}
+
+func TestWeatherSuite(t *testing.T) {
+	suite.Run(t, &WeatherSuite{})
+}
+
+func (suite *WeatherSuite) SetupTest() {
+	suite.weatherMock = new(mocks.IWeatherService)
+	suite.weather = NewWeather()
+	suite.weather.(*Weather).weatherService = suite.weatherMock
+}
+
+func (suite *WeatherSuite) SetupSuite() {
+	suite.weatherDto = dtos.WeatherDto{
+		Location:    "Berlin",
+		Temperature: "20°C",
+		Humidity:    "20%",
+		SunHours:    5,
+		WindSpeed:   "50m/s",
+		Weather:     "Sunny",
+		Date:        "2021-09-01",
+	}
+}
 
 var err = fmt.Errorf("failed to get weather")
 
-func TestWeather_GetWeather(t *testing.T) {
-	type args struct {
-		location string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *dtos.WeatherDto
-		mock *service.WeatherServiceMock
-	}{
-		{
-			name: "Test GetWeather Success",
-			args: args{
-				location: "Berlin",
-			},
-			want: &dtos.WeatherDto{
-				Location:    "Berlin",
-				Temperature: "20°C",
-				Humidity:    "20%",
-				SunHours:    5,
-				WindSpeed:   "50m/s",
-				Weather:     "Sunny",
-				Date:        "2021-09-01",
-			},
-			mock: &service.WeatherServiceMock{
-				Weather: &dtos.WeatherDto{
-					Location:    "Berlin",
-					Temperature: "20°C",
-					Humidity:    "20%",
-					SunHours:    5,
-					WindSpeed:   "50m/s",
-					Weather:     "Sunny",
-					Date:        "2021-09-01",
-				},
-				Error: nil,
-			},
-		},
-		{
-			name: "Test GetWeather Fail",
-			args: args{
-				location: "Berlin",
-			},
-			want: nil,
-			mock: &service.WeatherServiceMock{
-				Weather: nil,
-				Error:   err,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			w := &Weather{}
-			weatherService = tt.mock
-			if got := w.GetWeather(tt.args.location); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetWeather() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+func (suite *WeatherSuite) TestGetWeather_Success() {
+	suite.weatherMock.On("GetWeather", "Berlin").Return(&suite.weatherDto, nil)
+	result := suite.weather.GetWeather("Berlin")
+	suite.Assert().Equal(&suite.weatherDto, result)
+}
+
+func (suite *WeatherSuite) TestGetWeather_Fail() {
+	suite.weatherMock.On("GetWeather", "Berlin").Return(nil, err)
+	result := suite.weather.GetWeather("Berlin")
+	suite.Assert().Nil(result)
 }

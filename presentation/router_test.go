@@ -1,17 +1,33 @@
 package presentation
 
 import (
+	"codeberg.org/Birkenfunk/SQS/mocks"
 	"encoding/json"
+	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"codeberg.org/Birkenfunk/SQS/business/handler"
-	"codeberg.org/Birkenfunk/SQS/business/logic"
 	"codeberg.org/Birkenfunk/SQS/dtos"
 	"github.com/go-chi/chi/v5"
-	"github.com/google/go-cmp/cmp"
 )
+
+type RouterSuite struct {
+	suite.Suite
+	router  IRouter
+	weather *mocks.IWeather
+}
+
+func TestRouterSuite(t *testing.T) {
+	suite.Run(t, &RouterSuite{})
+}
+
+func (rs *RouterSuite) SetupTest() {
+	rs.router = NewRouter()
+	rs.weather = new(mocks.IWeather)
+	rs.router.(*Router).weatherHandler.(*handler.Handler).SetWeather(rs.weather)
+}
 
 // executeRequest, creates a new ResponseRecorder
 // then executes the request by calling ServeHTTP in the router
@@ -24,25 +40,17 @@ func executeRequest(req *http.Request, r *chi.Mux) *httptest.ResponseRecorder {
 	return rr
 }
 
-func TestHealthEndpoint(t *testing.T) {
-	r := InitRouter()
+func (rs *RouterSuite) TestHealthEndpoint() {
 	req, err := http.NewRequest("GET", "/api/v1/health", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	rs.Require().NoError(err)
 
-	rr := executeRequest(req, r)
-	if rr.Code != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
-	}
-
-	expected := "OK"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
+	rr := executeRequest(req, rs.router.InitRouter())
+	rs.Require().Equal(http.StatusOK, rr.Code)
+	rs.Require().Equal("OK", rr.Body.String())
 }
 
-func TestWeatherEndpoint_Success(t *testing.T) {
+func (rs *RouterSuite) TestWeatherEndpoint_Success() {
+	// given:
 	weatherDto := &dtos.WeatherDto{
 		Location:    "Berlin",
 		Temperature: "20°C",
@@ -52,52 +60,34 @@ func TestWeatherEndpoint_Success(t *testing.T) {
 		Weather:     "Sunny",
 		Date:        "2021-09-01",
 	}
-	weatherMock := &logic.WeatherMock{
-		WeatherDto: weatherDto,
-	}
-	handler.SetWeather(weatherMock)
-	r := InitRouter()
+	rs.weather.On("GetWeather", "berlin").Return(weatherDto)
+	// when:
 	req, err := http.NewRequest("GET", "/api/v1/weather/berlin", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	rs.Require().NoError(err)
+	rr := executeRequest(req, rs.router.InitRouter())
 
-	rr := executeRequest(req, r)
-	if rr.Code != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
-	}
-	if rr.Body.String() == "" {
-		t.Errorf("handler returned empty body")
-	}
-	if rr.Header().Get("Content-Type") != "application/json" {
-		t.Errorf("handler returned wrong content type: got %v want %v", rr.Header().Get("Content-Type"), "application/json")
-	}
+	// then:
+	rs.Require().Equal(http.StatusOK, rr.Code)
+	rs.Require().Equal("application/json", rr.Header().Get("Content-Type"))
+	rs.Require().NotNil(rr.Body)
+
 	responseDto := &dtos.WeatherDto{}
 	err = json.Unmarshal(rr.Body.Bytes(), responseDto)
-	if err != nil {
-		t.Errorf("failed to unmarshal response body")
-	}
-	if !cmp.Equal(responseDto, weatherDto) {
-		t.Errorf("handler returned unexpected body: got %v want %v", responseDto, weatherDto)
-	}
+	rs.Require().NoError(err)
+	rs.Require().Equal(weatherDto, responseDto)
 }
 
-func TestWeatherEndpoint_Fail(t *testing.T) {
-	weatherMock := &logic.WeatherMock{
-		WeatherDto: nil,
-	}
-	handler.SetWeather(weatherMock)
-	r := InitRouter()
-	req, err := http.NewRequest("GET", "/api/v1/weather/berlin", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+func (rs *RouterSuite) TestWeatherEndpoint_Fail() {
+	// given:
+	rs.weather.On("GetWeather", "berlin").Return(nil)
 
-	rr := executeRequest(req, r)
-	if rr.Code != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v", rr.Code, http.StatusInternalServerError)
-	}
-	if rr.Body.String() != "Failed to get weather" {
-		t.Errorf("handler returned wrong body: got %v want %v", rr.Body.String(), "Failed to get weather")
-	}
+	// when:
+	req, err := http.NewRequest("GET", "/api/v1/weather/berlin", nil)
+	rs.Require().NoError(err)
+
+	rr := executeRequest(req, rs.router.InitRouter())
+
+	// then:
+	rs.Require().Equal(http.StatusInternalServerError, rr.Code)
+	rs.Require().Equal("Failed to get weather", rr.Body.String())
 }

@@ -6,7 +6,23 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func InitRouter() *chi.Mux {
+type IRouter interface {
+	InitRouter() *chi.Mux
+}
+
+type Router struct {
+	weatherHandler handler.IWeatherHandler
+	healthHandler  handler.IHealthHandler
+}
+
+func NewRouter() IRouter {
+	return &Router{
+		weatherHandler: handler.NewWeatherHandler(),
+		healthHandler:  handler.NewHealthHandler(),
+	}
+}
+
+func (router *Router) InitRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	// Add Middleware
@@ -18,23 +34,23 @@ func InitRouter() *chi.Mux {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RedirectSlashes)
 
-	r.Mount("/api", apiRouter())
+	r.Mount("/api", router.apiRouter())
 
 	return r
 }
 
-func apiRouter() *chi.Mux {
+func (router *Router) apiRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Mount("/v1", v1Router())
+	r.Mount("/v1", router.v1Router())
 
 	return r
 }
 
-func v1Router() *chi.Mux {
+func (router *Router) v1Router() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/health", handler.HealthHandler)
-	r.Get("/weather/{location}", handler.WeatherHandler)
+	r.Get("/health", router.healthHandler.GetHealthHandler)
+	r.Get("/weather/{location}", router.weatherHandler.GetWeatherHandler)
 	return r
 }

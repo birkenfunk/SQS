@@ -8,12 +8,24 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var weather logic.IWeather = &logic.Weather{}
+var weather logic.IWeather = logic.NewWeather()
 
-// WeatherHandler is a handler for the Weather Endpoint.
-func WeatherHandler(rw http.ResponseWriter, r *http.Request) {
+type IWeatherHandler interface {
+	GetWeatherHandler(rw http.ResponseWriter, r *http.Request)
+}
+
+type Handler struct {
+	weather logic.IWeather
+}
+
+func NewWeatherHandler() IWeatherHandler {
+	return &Handler{weather: logic.NewWeather()}
+}
+
+// GetWeatherHandler is a handler for the Weather Endpoint.
+func (h *Handler) GetWeatherHandler(rw http.ResponseWriter, r *http.Request) {
 	location := chi.URLParam(r, "location")
-	weather := weather.GetWeather(location)
+	weather := h.weather.GetWeather(location)
 	if weather == nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		_, err := rw.Write([]byte("Failed to get weather"))
@@ -36,6 +48,7 @@ func WeatherHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SetWeather(w logic.IWeather) {
-	weather = w
+// SetWeather is a setter for the weather logic.
+func (h *Handler) SetWeather(w logic.IWeather) {
+	h.weather = w
 }

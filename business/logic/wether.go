@@ -6,16 +6,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var weatherService service.IWeatherService = &service.WeatherService{}
-
 type IWeather interface {
 	GetWeather(location string) *dtos.WeatherDto
 }
 
-type Weather struct{}
+type Weather struct {
+	weatherService service.IWeatherService
+}
+
+func NewWeather() IWeather {
+	return &Weather{}
+}
 
 func (w *Weather) GetWeather(location string) *dtos.WeatherDto {
-	result, err := weatherService.GetWeather(location)
+	result, err := w.weatherService.GetWeather(location)
 	if err != nil {
 		log.Err(err).Msg("Failed to get weather")
 		return nil
