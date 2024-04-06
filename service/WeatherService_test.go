@@ -71,6 +71,34 @@ func (suite *WeatherServiceSuite) TestGetWeather_Fail() {
 	suite.Error(err)
 }
 
+func (suite *WeatherServiceSuite) TestGetWeather_FailStatusCode() {
+	// given:
+	body := io.NopCloser(bytes.NewReader([]byte("error")))
+	response := http.Response{Body: body, StatusCode: 500}
+	suite.mockClient.On("Do", mock.Anything).Return(&response, nil)
+
+	// when:
+	result, err := suite.service.GetWeather("Berlin")
+
+	// then:
+	suite.Nil(result)
+	suite.Error(err)
+}
+
+func (suite *WeatherServiceSuite) TestGetWeather_FailUnmarshal() {
+	// given:
+	body := io.NopCloser(bytes.NewReader([]byte("error")))
+	response := http.Response{Body: body, StatusCode: 200}
+	suite.mockClient.On("Do", mock.Anything).Return(&response, nil)
+
+	// when:
+	result, err := suite.service.GetWeather("Berlin")
+
+	// then:
+	suite.Nil(result)
+	suite.Error(err)
+}
+
 func (suite *WeatherServiceSuite) TestGetHealth_Success() {
 	// given:
 	body := io.NopCloser(bytes.NewReader([]byte("OK")))
