@@ -24,6 +24,9 @@ func (wd WeatherDto) String() string {
 }
 
 func (wd WeatherDto) Equals(other *WeatherDto) bool {
+	if other == nil {
+		return false
+	}
 	return wd.Location == other.Location &&
 		wd.Temperature == other.Temperature &&
 		wd.Humidity == other.Humidity &&
@@ -36,6 +39,9 @@ func (wd WeatherDto) Equals(other *WeatherDto) bool {
 const NOT = " != "
 
 func (wd WeatherDto) Diff(other *WeatherDto) string {
+	if other == nil {
+		return "nil"
+	}
 	diff := ""
 	if wd.Location != other.Location {
 		diff += "Location: " + wd.Location + NOT + other.Location + "\n"
