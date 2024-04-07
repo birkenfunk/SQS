@@ -12,7 +12,8 @@ import (
 
 type DatabaseIntegrationSuite struct {
 	suite.Suite
-	db IDatabase
+	db  IDatabase
+	dto *dtos.WeatherDto
 }
 
 func TestDatabaseIntegrationSuite(t *testing.T) {
@@ -20,15 +21,24 @@ func TestDatabaseIntegrationSuite(t *testing.T) {
 }
 
 func (suite *DatabaseIntegrationSuite) SetupSuite() {
-	redisUrl, ok := os.LookupEnv("REDIS_ADDR")
+	redisURL, ok := os.LookupEnv("REDIS_ADDR")
 	if !ok {
-		redisUrl = "localhost:6379"
+		redisURL = "localhost:6379"
 	}
-	consts.SetDBURL(redisUrl)
+	consts.SetDBURL(redisURL)
 }
 
 func (suite *DatabaseIntegrationSuite) SetupTest() {
 	suite.db = NewDatabase()
+	suite.dto = &dtos.WeatherDto{
+		Location:    "Berlin",
+		Temperature: "20°C",
+		Humidity:    "50%",
+		SunHours:    8,
+		WindSpeed:   "5m/s",
+		Weather:     "Sunny",
+		Date:        time.Now().Format("2006-01-02"),
+	}
 }
 
 func (suite *DatabaseIntegrationSuite) TearDownTest() {
@@ -39,20 +49,20 @@ func (suite *DatabaseIntegrationSuite) TearDownTest() {
 	}
 }
 
-func (suite *DatabaseIntegrationSuite) TestAddWeather() {
-	err := suite.db.AddWeather(&dtos.WeatherDto{
-		Location:    "Berlin",
-		Temperature: "20°C",
-		Humidity:    "50%",
-		SunHours:    8,
-		WindSpeed:   "5m/s",
-		Weather:     "Sunny",
-		Date:        "2021-09-01",
-	})
-	suite.NoError(err)
+func (suite *DatabaseIntegrationSuite) TestNewDatabase() {
+	db := NewDatabase()
+	suite.NotNil(db)
 }
 
-func (suite *DatabaseIntegrationSuite) TestAddWeather_Error_in_DTO() {
+func (suite *DatabaseIntegrationSuite) TestAddWeather() {
+	err := suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
+	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
+	suite.Require().NoError(err)
+	suite.Equal(suite.dto, result)
+}
+
+func (suite *DatabaseIntegrationSuite) TestAddWeather_Error_No_Time() {
 	err := suite.db.AddWeather(&dtos.WeatherDto{
 		Location:    "Berlin",
 		Temperature: "20°C",
@@ -61,28 +71,55 @@ func (suite *DatabaseIntegrationSuite) TestAddWeather_Error_in_DTO() {
 		WindSpeed:   "5m/s",
 		Weather:     "Sunny",
 	})
-	suite.Error(err)
+	suite.Require().Error(err)
+	result, err := suite.db.GetWeatherByLocation("Berlin")
+	suite.Require().NoError(err)
+	suite.Nil(result)
+}
+
+func (suite *DatabaseIntegrationSuite) TestAddWeather_Adding_Entry_Double() {
+	err := suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
+	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
+	suite.Require().NoError(err)
+	suite.Equal(suite.dto, result)
+	err = suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
+	result, err = suite.db.GetWeatherByLocation(suite.dto.Location)
+	suite.Require().NoError(err)
+	suite.Equal(suite.dto, result)
+}
+
+func (suite *DatabaseIntegrationSuite) TestAddWeather_Double_Different_Values() {
+	err := suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
+	suite.dto.Temperature = "25°C"
+	err = suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
+	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
+	suite.Require().NoError(err)
+	suite.Equal(suite.dto, result)
 }
 
 func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation() {
-	dto := &dtos.WeatherDto{
-		Location:    "Berlin",
-		Temperature: "20°C",
-		Humidity:    "50%",
-		SunHours:    8,
-		WindSpeed:   "5m/s",
-		Weather:     "Sunny",
-		Date:        time.Now().Format("2006-01-02"),
-	}
-	err := suite.db.AddWeather(dto)
-	suite.NoError(err)
+	err := suite.db.AddWeather(suite.dto)
+	suite.Require().NoError(err)
 	result, err := suite.db.GetWeatherByLocation("Berlin")
-	suite.NoError(err)
-	suite.Equal(dto, result)
+	suite.Require().NoError(err)
+	suite.Equal(suite.dto, result)
 }
 
 func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation_NotFound() {
 	result, err := suite.db.GetWeatherByLocation("Berlin")
-	suite.NoError(err)
+	suite.Require().NoError(err)
+	suite.Nil(result)
+}
+
+func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation_Error_in_Json() {
+	db := suite.db.(*Database).con
+	_, err := (*db).Do("SET", "Berlin", "not a json")
+	suite.Require().NoError(err)
+	result, err := suite.db.GetWeatherByLocation("Berlin")
+	suite.Require().Error(err)
 	suite.Nil(result)
 }

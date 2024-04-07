@@ -36,12 +36,12 @@ func (db *Database) AddWeather(dto *dtos.WeatherDto) error {
 		log.Error().Err(err).Msg("Could not parse date")
 		return err
 	}
-	weatherJson, err := json.Marshal(dto)
+	weatherJSON, err := json.Marshal(dto)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not marshal weather")
 		return err
 	}
-	_, err = (*db.con).Do("SET", dto.Location, weatherJson, "EXAT", expTime.Unix())
+	_, err = (*db.con).Do("SET", dto.Location, weatherJSON, "EXAT", expTime.Unix())
 	if err != nil {
 		log.Error().Err(err).Msg("Could not add weather to redis")
 		return err
