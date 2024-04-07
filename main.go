@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
+	"sync"
 
 	"codeberg.org/Birkenfunk/SQS/consts"
 	"codeberg.org/Birkenfunk/SQS/presentation"
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 )
@@ -28,16 +31,33 @@ func init() {
 }
 
 func main() {
-	router := presentation.NewRouter()
-	routes := router.InitRouter()
+	routes := initRoutes()
 
 	// Start the server
-	err := http.ListenAndServe(":"+consts.GetPort(), routes)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
+	wg := &sync.WaitGroup{}
+	startServer(routes, wg)
+	wg.Wait()
 }
 
-func GetHelloWorld() string {
-	return "Hello, World!"
+func initRoutes() *chi.Mux {
+	router := presentation.NewRouter()
+	routes := router.InitRouter()
+	return routes
+}
+
+func startServer(handler http.Handler, wg *sync.WaitGroup) *http.Server {
+	srv := &http.Server{
+		Addr:    ":" + consts.GetPort(),
+		Handler: handler,
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		log.Info().Msgf("Starting server on port %s", consts.GetPort())
+		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal().Err(err).Msg("Server failed")
+		}
+	}()
+	return srv
 }
