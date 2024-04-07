@@ -11,9 +11,10 @@ import (
 
 type WeatherSuite struct {
 	suite.Suite
-	weather     IWeather
-	weatherMock *mocks.IWeatherService
-	weatherDto  dtos.WeatherDto
+	weather      IWeather
+	weatherMock  *mocks.IWeatherService
+	databaseMock *mocks.IDatabase
+	weatherDto   dtos.WeatherDto
 }
 
 func TestWeatherSuite(t *testing.T) {
@@ -22,8 +23,8 @@ func TestWeatherSuite(t *testing.T) {
 
 func (suite *WeatherSuite) SetupTest() {
 	suite.weatherMock = new(mocks.IWeatherService)
-	suite.weather = NewWeather()
-	suite.weather.(*Weather).weatherService = suite.weatherMock
+	suite.databaseMock = new(mocks.IDatabase)
+	suite.weather = &Weather{suite.weatherMock, suite.databaseMock}
 }
 
 func (suite *WeatherSuite) SetupSuite() {
@@ -40,14 +41,45 @@ func (suite *WeatherSuite) SetupSuite() {
 
 var err = fmt.Errorf("failed to get weather")
 
-func (suite *WeatherSuite) TestGetWeather_Success() {
+func (suite *WeatherSuite) TestGetWeather_Success_Not_In_DB() {
 	suite.weatherMock.On("GetWeather", "Berlin").Return(&suite.weatherDto, nil)
+	suite.databaseMock.On("GetWeatherByLocation", "Berlin").Return(nil, nil)
+	suite.databaseMock.On("AddWeather", &suite.weatherDto).Return(nil)
 	result := suite.weather.GetWeather("Berlin")
 	suite.Equal(&suite.weatherDto, result)
+	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
+	suite.databaseMock.AssertCalled(suite.T(), "AddWeather", &suite.weatherDto)
+	suite.weatherMock.AssertCalled(suite.T(), "GetWeather", "Berlin")
 }
 
-func (suite *WeatherSuite) TestGetWeather_Fail() {
+func (suite *WeatherSuite) TestGetWeather_Success_err_from_database() {
+	suite.weatherMock.On("GetWeather", "Berlin").Return(&suite.weatherDto, nil)
+	suite.databaseMock.On("GetWeatherByLocation", "Berlin").Return(nil, err)
+	suite.databaseMock.On("AddWeather", &suite.weatherDto).Return(nil)
+	result := suite.weather.GetWeather("Berlin")
+	suite.Equal(&suite.weatherDto, result)
+	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
+	suite.weatherMock.AssertCalled(suite.T(), "GetWeather", "Berlin")
+	suite.databaseMock.AssertCalled(suite.T(), "AddWeather", &suite.weatherDto)
+}
+
+func (suite *WeatherSuite) TestGetWeather_Success_In_DB() {
+	suite.weatherMock.On("GetWeather", "Berlin").Return(nil, nil)
+	suite.databaseMock.On("GetWeatherByLocation", "Berlin").Return(&suite.weatherDto, nil)
+	result := suite.weather.GetWeather("Berlin")
+	suite.Equal(&suite.weatherDto, result)
+	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
+	suite.weatherMock.AssertNotCalled(suite.T(), "GetWeather", "Berlin")
+	suite.databaseMock.AssertNotCalled(suite.T(), "AddWeather", &suite.weatherDto)
+}
+
+func (suite *WeatherSuite) TestGetWeather_Fail_err_from_weatherService() {
 	suite.weatherMock.On("GetWeather", "Berlin").Return(nil, err)
+	suite.databaseMock.On("GetWeatherByLocation", "Berlin").Return(nil, nil)
+	suite.databaseMock.On("AddWeather", &suite.weatherDto).Return(nil)
 	result := suite.weather.GetWeather("Berlin")
 	suite.Nil(result)
+	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
+	suite.weatherMock.AssertCalled(suite.T(), "GetWeather", "Berlin")
+	suite.databaseMock.AssertNotCalled(suite.T(), "AddWeather", &suite.weatherDto)
 }

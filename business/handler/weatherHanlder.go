@@ -12,16 +12,16 @@ type IWeatherHandler interface {
 	GetWeatherHandler(rw http.ResponseWriter, r *http.Request)
 }
 
-type Handler struct {
+type WeatherHandler struct {
 	weather logic.IWeather
 }
 
 func NewWeatherHandler() IWeatherHandler {
-	return &Handler{weather: logic.NewWeather()}
+	return &WeatherHandler{weather: logic.NewWeather()}
 }
 
 // GetWeatherHandler is a handler for the Weather Endpoint.
-func (h *Handler) GetWeatherHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *WeatherHandler) GetWeatherHandler(rw http.ResponseWriter, r *http.Request) {
 	location := chi.URLParam(r, "location")
 	weather := h.weather.GetWeather(location)
 	if weather == nil {
@@ -47,6 +47,6 @@ func (h *Handler) GetWeatherHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 // SetWeather is a setter for the weather logic.
-func (h *Handler) SetWeather(w logic.IWeather) {
+func (h *WeatherHandler) SetWeather(w logic.IWeather) {
 	h.weather = w
 }

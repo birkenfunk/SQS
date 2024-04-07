@@ -19,18 +19,17 @@ type Weather struct {
 func NewWeather() IWeather {
 	return &Weather{
 		weatherService: service.NewWeatherService(),
-		database: persistence.NewDatabase(),
+		database:       persistence.NewDatabase(),
 	}
 }
 
 func (w *Weather) GetWeather(location string) *dtos.WeatherDto {
-	result, err := w.weatherService.GetWeather(location)
-	weather, err := w.database.GetWeatherByLocation(location)
+	result, err := w.database.GetWeatherByLocation(location)
 	if err != nil {
 		log.Err(err).Msg("Failed to get weather from database")
 	}
-	if weather != nil {
-		return weather
+	if result != nil {
+		return result
 	}
 	result, err = w.weatherService.GetWeather(location)
 	if err != nil {
