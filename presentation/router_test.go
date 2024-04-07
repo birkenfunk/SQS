@@ -24,9 +24,13 @@ func TestRouterSuite(t *testing.T) {
 }
 
 func (rs *RouterSuite) SetupTest() {
-	rs.router = NewRouter()
 	rs.weather = new(mocks.IWeather)
-	rs.router.(*Router).weatherHandler.(*handler.Handler).SetWeather(rs.weather)
+	weatherHandler := handler.WeatherHandler{}
+	weatherHandler.SetWeather(rs.weather)
+	rs.router = &Router{
+		weatherHandler: &weatherHandler,
+		healthHandler:  handler.NewHealthHandler(),
+	}
 }
 
 // executeRequest, creates a new ResponseRecorder
