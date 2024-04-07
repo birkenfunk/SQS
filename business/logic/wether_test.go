@@ -78,7 +78,7 @@ func (suite *WeatherSuite) TestGetWeather_Success_err_adding_to_db() {
 	suite.databaseMock.On("GetWeatherByLocation", "Berlin").Return(nil, nil)
 	suite.databaseMock.On("AddWeather", &suite.weatherDto).Return(err)
 	result := suite.weather.GetWeather("Berlin")
-	suite.Equal(suite.weatherDto, result)
+	suite.Equal(&suite.weatherDto, result)
 	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
 	suite.weatherMock.AssertCalled(suite.T(), "GetWeather", "Berlin")
 	suite.databaseMock.AssertCalled(suite.T(), "AddWeather", &suite.weatherDto)

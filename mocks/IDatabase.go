@@ -30,36 +30,6 @@ func (_m *IDatabase) AddWeather(dto *dtos.WeatherDto) error {
 	return r0
 }
 
-// GetWeather provides a mock function with given fields:
-func (_m *IDatabase) GetWeather() ([]dtos.WeatherDto, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetWeather")
-	}
-
-	var r0 []dtos.WeatherDto
-	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]dtos.WeatherDto, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() []dtos.WeatherDto); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]dtos.WeatherDto)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetWeatherByLocation provides a mock function with given fields: location
 func (_m *IDatabase) GetWeatherByLocation(location string) (*dtos.WeatherDto, error) {
 	ret := _m.Called(location)
