@@ -69,3 +69,26 @@ func (suite *ConstantsSuite) TestSetWeatherServiceURL() {
 	// then:
 	suite.Equal(weatherServiceURL, GetWeatherServiceURL())
 }
+
+func (suite *ConstantsSuite) TestSetDBURL() {
+	// given:
+	dbURL := "localhost:6379"
+
+	// when:
+	SetDBURL(dbURL)
+
+	// then:
+	suite.Equal(dbURL, GetDBURL())
+}
+
+func (suite *ConstantsSuite) TestGetDBURL() {
+	// given:
+	dbURL := "localhost:6379"
+	SetDBURL(dbURL)
+
+	// when:
+	result := GetDBURL()
+
+	// then:
+	suite.Equal(dbURL, result)
+}
