@@ -1,7 +1,6 @@
 package presentation
 
 import (
-	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +9,7 @@ import (
 	"codeberg.org/Birkenfunk/SQS/business/handler"
 	"codeberg.org/Birkenfunk/SQS/dtos"
 	"codeberg.org/Birkenfunk/SQS/mocks"
+	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/suite"
 )
