@@ -64,14 +64,30 @@ steps:
     when:
       - event: tag
 
+  deploy_latest:
+    image: *docker_plugin
+    settings:
+      repo: codeberg.org/birkenfunk/sqs/backend
+      context: ./
+      dockerfile: ./docker/Dockerfile
+      tags:
+        - ${CI_COMMIT_BRANCH}-latest
+      registry: codeberg.org
+      username:
+        from_secret: REGISTRY_USER
+      password:
+        from_secret: REGISTRY_PASSWORD
+    when:
+      - event: push
+
   publish:
     image: woodpeckerci/plugin-gitea-release
     settings:
       base_url: https://codeberg.org
       files:
-        - "weather-api-linux"
-        - "weather-api-windows.exe"
-        - "weather-api-macos"
+        - "build/linux/weather-proxy-linux"
+        - "build/windows/weather-proxy-windows.exe"
+        - "build/mac/weather-proxy-macos"
       api_key:
         from_secret: GITEA_ACCESS_TOKEN
       target: main

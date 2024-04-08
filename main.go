@@ -22,7 +22,7 @@ func init() {
 		err = godotenv.Load()
 	}
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error().Err(err)
 	}
 	consts.SetWeatherServiceURL(os.Getenv("WEATHER_SERVICE_API_URL"))
 	consts.SetPortFromString(os.Getenv("PORT"))
