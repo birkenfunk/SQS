@@ -81,9 +81,7 @@ steps:
       - event: push
 
   test_docker:
-    image: docker:26.0
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: docker:26.0-dind
     commands:
       - docker pull codeberg.org/birkenfunk/sqs/backend:${CI_COMMIT_BRANCH}-latest
       - docker run \
