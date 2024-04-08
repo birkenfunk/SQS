@@ -8,4 +8,7 @@ COPY ../build/linux/weather-proxy-api-linux ./
 
 EXPOSE 3000
 
+RUN adduser -D server
+USER server
+
 CMD ["/app/weather-proxy-api-linux"]

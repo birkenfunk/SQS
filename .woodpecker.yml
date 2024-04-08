@@ -94,6 +94,9 @@ steps:
       - curl --location 'localhost:4000/api/v1/health'
       - curl --location 'localhost:4000/api/v1/weather/Berlin'
       - docker stop sqs-backend-test
+    privileged: true
+    when:
+      - event: push
 
   publish:
     image: woodpeckerci/plugin-gitea-release
