@@ -1,6 +1,7 @@
 package presentation
 
 import (
+	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -42,6 +43,13 @@ func executeRequest(req *http.Request, r *chi.Mux) *httptest.ResponseRecorder {
 	r.ServeHTTP(rr, req)
 
 	return rr
+}
+
+func (rs *RouterSuite) TestNewRouter() {
+	testfixtures.SetUpAllVariables()
+	router := NewRouter()
+	rs.Require().NotNil(router)
+	rs.Require().IsType(&Router{}, router)
 }
 
 func (rs *RouterSuite) TestHealthEndpoint() {
