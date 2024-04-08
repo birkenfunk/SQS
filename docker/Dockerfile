@@ -8,4 +8,4 @@ COPY ../build/linux/weather-proxy-api-linux ./
 
 EXPOSE 3000
 
-CMD ["/app/weather-api-linux"]
+CMD ["/app/weather-proxy-api-linux"]

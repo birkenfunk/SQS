@@ -80,6 +80,21 @@ steps:
     when:
       - event: push
 
+  test_docker:
+    image: docker:26.0
+    commands:
+      - docker pull codeberg.org/birkenfunk/sqs/backend:${CI_COMMIT_BRANCH}-latest
+      - docker run \
+        -e WEATHER_SERVICE_API_URL=http://external-api:3000\
+        -e PORT=4000\
+        -e REDIS_URL=cache:6379\
+        -p 4000:4000\
+        --name sqs-backend-test\
+        --rm codeberg.org/birkenfunk/sqs/backend:${CI_COMMIT_BRANCH}-latest
+      - curl --location 'localhost:4000/api/v1/health'
+      - curl --location 'localhost:4000/api/v1/weather/Berlin'
+      - docker stop sqs-backend-test
+
   publish:
     image: woodpeckerci/plugin-gitea-release
     settings:
