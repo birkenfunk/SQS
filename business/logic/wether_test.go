@@ -6,6 +6,7 @@ import (
 
 	"codeberg.org/Birkenfunk/SQS/dtos"
 	"codeberg.org/Birkenfunk/SQS/mocks"
+	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -40,6 +41,13 @@ func (suite *WeatherSuite) SetupSuite() {
 }
 
 var err = fmt.Errorf("failed to get weather")
+
+func (suite *WeatherSuite) TestNewWeather() {
+	testfixtures.SetUpAllVariables()
+	result := NewWeather()
+	suite.NotNil(result)
+	suite.IsType(&Weather{}, result)
+}
 
 func (suite *WeatherSuite) TestGetWeather_Success_Not_In_DB() {
 	suite.weatherMock.On("GetWeather", "Berlin").Return(&suite.weatherDto, nil)

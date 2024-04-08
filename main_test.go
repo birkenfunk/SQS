@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/stretchr/testify/suite"
 	"net/http"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type MainSuite struct {
@@ -22,7 +23,7 @@ func (ms *MainSuite) TearDownTest() {
 
 func (ms *MainSuite) TestStartServer() {
 	// given:
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	handler := http.Handler(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
 	// when:
 
 	wg := &sync.WaitGroup{}
@@ -35,7 +36,7 @@ func (ms *MainSuite) TestStartServer() {
 
 func (ms *MainSuite) TestStartServer_Error() {
 	// given:
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	handler := http.Handler(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
 	// when:
 
 	wg := &sync.WaitGroup{}
