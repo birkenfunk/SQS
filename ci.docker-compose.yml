@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  cache:
+    image: redis/redis-stack:7.2.0-v9
+    restart: always
+    ports:
+      - '1235:6379'
+    environment:
+      - REDIS_ARGS="--requirepass mypassword"
+    volumes: 
+      - cache:/data
+  external-api:
+    image: codeberg.org/birkenfunk/sqs-external-api:latest
+    restart: always
+    ports:
+      - '1234:3000'
+volumes:
+  cache:
+    driver: local
