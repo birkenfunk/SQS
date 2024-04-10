@@ -3,7 +3,7 @@
 
 FROM alpine:3.19
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache musl-obstack=1.2.3-r2 libucontext=1.2-r2 gcompat=1.1.0-r4
 COPY ../build/linux/weather-proxy-api-linux ./
 
 EXPOSE 3000
