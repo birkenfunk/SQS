@@ -124,6 +124,11 @@ steps:
     when:
       - event: pull_request
 
+  docker_linter:
+    image: hadolint/hadolint:v2.12.0-alpine
+    commands:
+      - hadolint ./docker/Dockerfile
+
 services:
   - name: external-api
     image: codeberg.org/birkenfunk/sqs-external-api:latest
