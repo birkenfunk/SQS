@@ -100,6 +100,9 @@ steps:
       - curl --location 'host.docker.internal:5000/api/v1/weather/Berlin'
       - docker stop sqs-backend-test
       - docker-compose -f integration.docker-compose.yml down -v
+    when:
+      - event: push
+
   publish:
     image: woodpeckerci/plugin-gitea-release
     settings:
