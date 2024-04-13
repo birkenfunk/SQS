@@ -50,7 +50,7 @@ steps:
   deploy:
     image: *docker_plugin
     settings:
-      repo: codeberg.org/birkenfunk/sqs-external-api
+      repo: codeberg.org/birkenfunk/sqs/backend
       context: ./
       dockerfile: ./docker/Dockerfile
       tags:
@@ -108,9 +108,9 @@ steps:
     settings:
       base_url: https://codeberg.org
       files:
-        - "build/linux/weather-proxy-linux"
-        - "build/windows/weather-proxy-windows.exe"
-        - "build/mac/weather-proxy-macos"
+        - "build/linux/weather-proxy-api-linux"
+        - "build/windows/weather-proxy-api-windows.exe"
+        - "build/mac/weather-proxy-api-macos"
       api_key:
         from_secret: GITEA_ACCESS_TOKEN
       target: main
