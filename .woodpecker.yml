@@ -110,7 +110,7 @@ steps:
       files:
         - "build/linux/weather-proxy-api-linux"
         - "build/windows/weather-proxy-api-windows.exe"
-        - "build/mac/weather-proxy-api-macos"
+        - "build/mac/weather-proxy-api-mac"
       api_key:
         from_secret: GITEA_ACCESS_TOKEN
       target: main
