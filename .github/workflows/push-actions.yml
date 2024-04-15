@@ -12,6 +12,11 @@ jobs:
           go-version: '1.21.x'
       - name: Build
         run: make linux
+      - name: Archive build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build
 
 
   test:
@@ -31,3 +36,23 @@ jobs:
         run: docker-compose -f integration.docker-compose.yml up -d
       - name: Test
         run: make test_with_coverage
+      - name: Tear down
+        run: docker-compose -f integration.docker-compose.yml down -v
+      - name: Upload coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: build/profile.cov
+
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v2
+        - name: SonarQube Scan
+          uses: sonarsource/sonarcloud-github-action@master
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+            SONAR_PROJECT_KEY: Github-SQS
+    needs:
+      - test
