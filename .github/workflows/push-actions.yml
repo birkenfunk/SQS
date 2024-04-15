@@ -16,6 +16,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      WEATHER_SERVICE_API_URL: http://localhost:3000
+      PORT: 4000
+      REDIS_URL: localhost:6379
     steps:
       - name: Checkout
         uses: actions/checkout@v2
