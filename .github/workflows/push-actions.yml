@@ -13,7 +13,7 @@ jobs:
       - name: Build
         run: make linux
       - name: Archive build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: build
@@ -38,25 +38,28 @@ jobs:
         run: make test_with_coverage
       - name: Tear down
         run: docker-compose -f integration.docker-compose.yml down -v
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       - name: Upload coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: build
+          path: build/
 
   sonarqube:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
         - name: Download coverage
-          uses: actions/download-artifact@v2
+          uses: actions/download-artifact@v4
           with:
             name: coverage
+            path: build/
+        - run: ls -la
+        - name: SonarQube Scan
+          uses: sonarsource/sonarqube-scan-action@master
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
     needs:
       - test
