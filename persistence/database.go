@@ -10,6 +10,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type IDatabase interface {
+	AddWeather(dto *dtos.WeatherDto) error
+	GetWeatherByLocation(location string) (*dtos.WeatherDto, error)
+}
+
 type Database struct {
 	con *redis.Conn
 }

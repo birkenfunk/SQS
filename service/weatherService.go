@@ -12,6 +12,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type IWeatherService interface {
+	GetWeather(location string) (*dtos.WeatherDto, error)
+	GetHealth() error
+}
+
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
