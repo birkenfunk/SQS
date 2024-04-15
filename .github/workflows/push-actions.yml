@@ -23,5 +23,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.x'
+      - name: Setup Environment
+        run: docker-compose -f integration.docker-compose.yml up -d
       - name: Test
         run: make test_with_coverage
