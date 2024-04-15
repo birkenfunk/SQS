@@ -38,6 +38,11 @@ jobs:
         run: make test_with_coverage
       - name: Tear down
         run: docker-compose -f integration.docker-compose.yml down -v
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       - name: Upload coverage
         uses: actions/upload-artifact@v2
         with:
@@ -52,10 +57,6 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: coverage
-        - name: SonarQube Scan
-          uses: sonarsource/sonarqube-scan-action@master
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
     needs:
       - test
