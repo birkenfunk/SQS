@@ -1,9 +1,7 @@
 name: Push Actions
 on:
   push:
-    branches:
-      - '*'
-    tags-ignore:
+    tags:
       - '*'
 jobs:
   build:
@@ -16,7 +14,7 @@ jobs:
         with:
           go-version: '1.21.x'
       - name: Build
-        run: make linux
+        run: make generate_all
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
@@ -93,7 +91,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           load: true
-          tags: ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}-latest
+          tags: ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}, ghcr.io/birkenfunk/sqs/backend:latest
       - name: Start Backend
         run: docker compose -f ci.docker-compose.yml up -d
       - name: Start API
@@ -103,7 +101,7 @@ jobs:
           -p 5000:5000
           --network=sqs_default
           --name sqs-backend-test
-          --rm -d ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}-latest
+          --rm -d ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}
       - name: Test Health
         run: curl http://localhost:5000/api/v1/health
       - name: Test Weather
@@ -116,7 +114,32 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           load: true
-          tags: ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}-latest
+          tags: ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}
+    needs:
+      - build
+      - test
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build/
+      - name: Publish
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: ${{github.ref_name}}
+          prerelease: false
+          title: "Release ${{github.ref_name}}"
+          files: |
+            build/linux/weather-proxy-api-linux
+            build/windows/weather-proxy-api-windows.exe
+            build/mac/weather-proxy-api-mac
     needs:
       - build
       - test
