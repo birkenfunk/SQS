@@ -1,4 +1,4 @@
-name: Push Actions
+name: Tag Actions
 on:
   push:
     tags:
