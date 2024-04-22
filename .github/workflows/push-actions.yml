@@ -94,6 +94,15 @@ jobs:
           file: ./docker/Dockerfile
           load: true
           tags: ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}-latest
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/birkenfunk/sqs/backend:${{github.ref_name}}-latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
       - name: Start Backend
         run: docker compose -f ci.docker-compose.yml up -d
       - name: Start API
