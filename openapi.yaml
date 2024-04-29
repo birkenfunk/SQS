@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+    title: SQS Backend Api
+    description: |-
+      This is the API for the SQS Backend.
+      
+      It's a simple caching Service whitch calls an other Weather Service API 
+    license:
+      name: Apache 2.0
+      url: http://www.apache.org/licenses/LICENSE-2.0.html
+    version: 1.0.0
+servers:
+    - url: http://localhost:4000/api/v1
+tags:
+    - name: weather
+      description: All weather endpoints
+    - name: health
+      description: All health endpoint
+paths:
+    /weather/{location}:
+      get:
+        tags:
+          - weather
+        summary: Gives the weather
+        description: Returns the weather for a specific location
+        operationId: getWeather
+        parameters:
+          - name: location
+            in: path
+            description: location for the weather you requested
+            required: true
+            schema:
+              type: string
+        responses:
+          "200":
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Weather"
+    /health:
+      get:
+        tags:
+          - health
+        summary: Creates a new Student
+        description: Creates a new Student with projects
+        operationId: getProjectsCourse
+        responses:
+          "200":
+            description: Successful operation
+            content:
+              text/plain:   
+                schema:
+                  type: string
+                  example: OK
+components:
+    schemas:
+      Weather:
+        required:
+          - location
+          - temperature
+          - humidity
+          - sunHours
+          - windSpeed
+          - weather
+          - date
+        type: object
+        properties:
+          location:
+            type: string
+            example: Berlin
+          temperature:
+            type: string
+            example: 10°C
+          humidity:
+            type: string
+            example: 73%
+          sunHours:
+            type: integer
+            example: 6
+          windSpeed:
+            type: string
+            example: 11km/h
+          weather:
+            type: string
+            example: Sunny
+          date:
+            type: string
+            example: 2024-04-29
+                  
