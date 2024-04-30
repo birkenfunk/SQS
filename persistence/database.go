@@ -11,40 +11,42 @@ import (
 )
 
 type IDatabase interface {
-	AddWeather(dto *dtos.WeatherDto) error
 	GetWeatherByLocation(location string) (*dtos.WeatherDto, error)
 }
 
 var weatherAddChannel chan *dtos.WeatherDto
 
 func GetWeatherAddChannel() chan *dtos.WeatherDto {
-	if weatherAddChannel == nil {
-		weatherAddChannel = make(chan *dtos.WeatherDto)
-	}
 	return weatherAddChannel
 }
 
-var con *redis.Conn
+var pool redis.Pool
 
-func StartWeatherConsumer() {
-	if con == nil {
-		initDB()
-	}
+func startWeatherConsumer() {
 	for weather := range GetWeatherAddChannel() {
 		processWeather(weather)
 	}
 }
 
-func initDB() {
-	newCon, err := redis.Dial("tcp", consts.GetDBURL())
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not connect to redis")
+func InitDB() {
+	weatherAddChannel = make(chan *dtos.WeatherDto)
+	pool = newPool()
+	go startWeatherConsumer()
+}
+
+func newPool() redis.Pool {
+	return redis.Pool{
+		Dial:      func() (redis.Conn, error) { return redis.Dial("tcp", consts.GetDBURL()) },
+		MaxIdle:   500,
+		MaxActive: 50000,
+		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			if time.Since(t) < time.Minute {
+				return nil
+			}
+			_, err := c.Do("PING")
+			return err
+		},
 	}
-	_, err = newCon.Do("PING")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not connect to redis")
-	}
-	con = &newCon
 }
 
 func processWeather(weather *dtos.WeatherDto) {
@@ -57,53 +59,21 @@ func processWeather(weather *dtos.WeatherDto) {
 	if err != nil {
 		log.Error().Err(err).Msg("Could not marshal weather")
 	}
-	_, err = (*con).Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
+	_, err = pool.Get().Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
 	if err != nil {
 		log.Error().Err(err).Msg("Could not add weather to redis")
 	}
 }
 
 type Database struct {
-	con *redis.Conn
 }
 
 func NewDatabase() *Database {
-	newCon, err := redis.Dial("tcp", consts.GetDBURL())
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not connect to redis")
-	}
-	_, err = newCon.Do("PING")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not connect to redis")
-		return nil
-	}
-	return &Database{
-		con: &newCon,
-	}
-}
-
-func (db *Database) AddWeather(dto *dtos.WeatherDto) error {
-	log.Debug().Msg("Adding weather for " + dto.Location + "to redis")
-	expTime, err := time.Parse("2006-01-02 15:04:05", dto.Date+" 23:59:59")
-	if err != nil {
-		log.Error().Err(err).Msg("Could not parse date")
-		return err
-	}
-	weatherJSON, err := json.Marshal(dto)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not marshal weather")
-		return err
-	}
-	_, err = (*db.con).Do("SET", dto.Location, weatherJSON, "EXAT", expTime.Unix())
-	if err != nil {
-		log.Error().Err(err).Msg("Could not add weather to redis")
-		return err
-	}
-	return nil
+	return &Database{}
 }
 
 func (db *Database) GetWeatherByLocation(location string) (*dtos.WeatherDto, error) {
-	result, err := (*db.con).Do("GET", location)
+	result, err := pool.Get().Do("GET", location)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get weather from redis")
 		return nil, err

@@ -24,14 +24,14 @@ func NewWeather() IWeather {
 }
 
 func (w *Weather) GetWeather(location string) *dtos.WeatherDto {
-	/*result, err := w.database.GetWeatherByLocation(location)
+	result, err := w.database.GetWeatherByLocation(location)
 	if err != nil {
 		log.Err(err).Msg("Failed to get weather from database")
 	}
 	if result != nil {
 		return result
-	}*/
-	result, err := w.weatherService.GetWeather(location)
+	}
+	result, err = w.weatherService.GetWeather(location)
 	if err != nil {
 		log.Err(err).Msg("Failed to get weather")
 		return nil

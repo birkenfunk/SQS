@@ -34,7 +34,7 @@ func init() {
 func main() {
 	routes := initRoutes()
 
-	go persistence.StartWeatherConsumer()
+	persistence.InitDB()
 
 	// Start the server
 	wg := &sync.WaitGroup{}
