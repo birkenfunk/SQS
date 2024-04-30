@@ -1,6 +1,7 @@
 package main
 
 import (
+	"codeberg.org/Birkenfunk/SQS/persistence"
 	"errors"
 	"net/http"
 	"os"
@@ -32,6 +33,8 @@ func init() {
 
 func main() {
 	routes := initRoutes()
+
+	go persistence.StartWeatherConsumer()
 
 	// Start the server
 	wg := &sync.WaitGroup{}

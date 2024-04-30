@@ -15,6 +15,54 @@ type IDatabase interface {
 	GetWeatherByLocation(location string) (*dtos.WeatherDto, error)
 }
 
+var weatherAddChannel chan *dtos.WeatherDto
+
+func GetWeatherAddChannel() chan *dtos.WeatherDto {
+	if weatherAddChannel == nil {
+		weatherAddChannel = make(chan *dtos.WeatherDto)
+	}
+	return weatherAddChannel
+}
+
+var con *redis.Conn
+
+func StartWeatherConsumer() {
+	if con == nil {
+		initDB()
+	}
+	for weather := range GetWeatherAddChannel() {
+		processWeather(weather)
+	}
+}
+
+func initDB() {
+	newCon, err := redis.Dial("tcp", consts.GetDBURL())
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not connect to redis")
+	}
+	_, err = newCon.Do("PING")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not connect to redis")
+	}
+	con = &newCon
+}
+
+func processWeather(weather *dtos.WeatherDto) {
+	log.Debug().Msg("Adding weather for " + weather.Location + "to redis")
+	expTime, err := time.Parse("2006-01-02 15:04:05", weather.Date+" 23:59:59")
+	if err != nil {
+		log.Error().Err(err).Msg("Could not parse date")
+	}
+	weatherJSON, err := json.Marshal(weather)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not marshal weather")
+	}
+	_, err = (*con).Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
+	if err != nil {
+		log.Error().Err(err).Msg("Could not add weather to redis")
+	}
+}
+
 type Database struct {
 	con *redis.Conn
 }

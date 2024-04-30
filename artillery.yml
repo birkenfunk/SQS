@@ -1,0 +1,29 @@
+config:
+  target: "http://localhost:4000/api/v1"
+  phases:
+    - name: constant-load
+      duration: 60
+      arrivalRate: 10
+    - name: ramp-up
+      duration: 60
+      arrivalRate: 10
+      rampTo: 1000
+    - name: fixed-arrival
+      duration: 60
+      arrivalCount: 100
+  plugins:
+    fuzzer: {}
+
+scenarios:
+- name: "GET /api/v1/health"
+  flow:
+    - get:
+        url: "/health"
+        expect:
+          - statusCode: 200
+          - json:
+            status: "ok"
+    - get:
+        url: "/weather/{{ $randomString() }}"
+        expect:
+          - statusCode: 200
