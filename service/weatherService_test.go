@@ -2,7 +2,6 @@ package service
 
 import (
 	"bytes"
-	"codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/service"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"testing/iotest"
 
 	"codeberg.org/Birkenfunk/SQS/dtos"
+	"codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/service"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )

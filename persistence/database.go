@@ -61,17 +61,16 @@ func processWeather(weather *dtos.WeatherDto) {
 	}
 	con := pool.Get()
 	_, err = con.Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
+	if err != nil {
+		log.Error().Err(err).Msg("Could not add weather to redis")
+	}
 	err = con.Close()
 	if err != nil {
 		log.Error().Err(err).Msg("Could not close redis connection")
 	}
-	if err != nil {
-		log.Error().Err(err).Msg("Could not add weather to redis")
-	}
 }
 
-type Database struct {
-}
+type Database struct{}
 
 func NewDatabase() *Database {
 	return &Database{}

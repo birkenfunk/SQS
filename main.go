@@ -1,13 +1,13 @@
 package main
 
 import (
-	"codeberg.org/Birkenfunk/SQS/persistence"
 	"errors"
 	"net/http"
 	"os"
 	"sync"
 
 	"codeberg.org/Birkenfunk/SQS/consts"
+	"codeberg.org/Birkenfunk/SQS/persistence"
 	"codeberg.org/Birkenfunk/SQS/presentation"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
