@@ -90,7 +90,13 @@ func (db *Database) GetWeatherByLocation(location string) (*dtos.WeatherDto, err
 	return &weather, nil
 }
 
-// SetWeatherAddChannel is for testing only
+// SetWeatherAddChannel sets the channel for adding weather to the database
 func SetWeatherAddChannel(channel chan *dtos.WeatherDto) {
 	weatherAddChannel = channel
+}
+
+// StartWeatherConsumer starts the consumer for adding weather to the database
+// For testing purposes only
+func StartWeatherConsumer() {
+	go startWeatherConsumer()
 }

@@ -2,7 +2,6 @@ package logic
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"testing"
 
 	"codeberg.org/Birkenfunk/SQS/dtos"
@@ -27,14 +26,16 @@ func TestWeatherSuite(t *testing.T) {
 }
 
 func (suite *WeatherSuite) SetupTest() {
-	log.Info().Msg("Test")
 	suite.weatherMock = new(service2.MockIWeatherService)
-	log.Info().Msg("Test2")
 	suite.databaseMock = new(persistence2.MockIDatabase)
-	log.Info().Msg("Test3")
 	suite.weather = &Weather{suite.weatherMock, suite.databaseMock}
 	suite.chanel = make(chan *dtos.WeatherDto)
 	persistence.SetWeatherAddChannel(suite.chanel)
+	persistence.StartWeatherConsumer()
+}
+
+func (suite *WeatherSuite) TearDownTest() {
+	close(suite.chanel)
 }
 
 func (suite *WeatherSuite) SetupSuite() {
@@ -65,10 +66,6 @@ func (suite *WeatherSuite) TestGetWeather_Success_Not_In_DB() {
 	suite.Equal(&suite.weatherDto, result)
 	suite.databaseMock.AssertCalled(suite.T(), "GetWeatherByLocation", "Berlin")
 	suite.weatherMock.AssertCalled(suite.T(), "GetWeather", "Berlin")
-	//check if there is an entry in the channel
-	for dto := range suite.chanel {
-		suite.Equal(dto, suite.weather)
-	}
 }
 
 func (suite *WeatherSuite) TestGetWeather_Success_err_from_database() {

@@ -12,8 +12,9 @@ import (
 
 type DatabaseIntegrationSuite struct {
 	suite.Suite
-	db  IDatabase
-	dto *dtos.WeatherDto
+	db      IDatabase
+	dto     *dtos.WeatherDto
+	channel chan *dtos.WeatherDto
 }
 
 func TestDatabaseIntegrationSuite(t *testing.T) {
@@ -39,14 +40,19 @@ func (suite *DatabaseIntegrationSuite) SetupTest() {
 		Weather:     "Sunny",
 		Date:        time.Now().Format("2006-01-02"),
 	}
+	suite.channel = make(chan *dtos.WeatherDto)
+	weatherAddChannel = suite.channel
+	pool = newPool()
 }
 
 func (suite *DatabaseIntegrationSuite) TearDownTest() {
 	// cleanup
-	_, err := (*suite.db.(*Database).con).Do("FLUSHALL")
+	_, err := pool.Get().Do("FLUSHALL")
 	if err != nil {
 		suite.FailNow(err.Error())
 	}
+	_ = pool.Close()
+	close(suite.channel)
 }
 
 func (suite *DatabaseIntegrationSuite) TestNewDatabase() {
@@ -55,35 +61,47 @@ func (suite *DatabaseIntegrationSuite) TestNewDatabase() {
 }
 
 func (suite *DatabaseIntegrationSuite) TestAddWeather() {
-	err := suite.db.AddWeather(suite.dto)
-	suite.Require().NoError(err)
+	// start the consumer
+	go startWeatherConsumer()
+
+	// add the weather to the channel
+	suite.channel <- suite.dto
+
+	// wait for the consumer to process the weather
+	time.Sleep(1 * time.Second)
+
 	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
 	suite.Require().NoError(err)
 	suite.Equal(suite.dto, result)
 }
 
 func (suite *DatabaseIntegrationSuite) TestAddWeather_Error_No_Time() {
-	err := suite.db.AddWeather(&dtos.WeatherDto{
+	testWeather := &dtos.WeatherDto{
 		Location:    "Berlin",
 		Temperature: "20°C",
 		Humidity:    "50%",
 		SunHours:    8,
 		WindSpeed:   "5m/s",
 		Weather:     "Sunny",
-	})
-	suite.Require().Error(err)
+	}
+	go startWeatherConsumer()
+	suite.channel <- testWeather
+	// wait for the consumer to process the weather
+	time.Sleep(1 * time.Second)
 	result, err := suite.db.GetWeatherByLocation("Berlin")
 	suite.Require().NoError(err)
 	suite.Nil(result)
 }
 
 func (suite *DatabaseIntegrationSuite) TestAddWeather_Adding_Entry_Double() {
-	err := suite.db.AddWeather(suite.dto)
-	suite.Require().NoError(err)
+	go startWeatherConsumer()
+	suite.channel <- suite.dto
+	// wait for the consumer to process the weather
+	time.Sleep(1 * time.Second)
 	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
 	suite.Require().NoError(err)
 	suite.Equal(suite.dto, result)
-	err = suite.db.AddWeather(suite.dto)
+	suite.channel <- suite.dto
 	suite.Require().NoError(err)
 	result, err = suite.db.GetWeatherByLocation(suite.dto.Location)
 	suite.Require().NoError(err)
@@ -91,19 +109,21 @@ func (suite *DatabaseIntegrationSuite) TestAddWeather_Adding_Entry_Double() {
 }
 
 func (suite *DatabaseIntegrationSuite) TestAddWeather_Double_Different_Values() {
-	err := suite.db.AddWeather(suite.dto)
-	suite.Require().NoError(err)
+	go startWeatherConsumer()
+	suite.channel <- suite.dto
+	// wait for the consumer to process the weather
+	time.Sleep(1 * time.Second)
 	suite.dto.Temperature = "25°C"
-	err = suite.db.AddWeather(suite.dto)
-	suite.Require().NoError(err)
+	suite.channel <- suite.dto
+	// wait for the consumer to process the weather
+	time.Sleep(1 * time.Second)
 	result, err := suite.db.GetWeatherByLocation(suite.dto.Location)
 	suite.Require().NoError(err)
 	suite.Equal(suite.dto, result)
 }
 
 func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation() {
-	err := suite.db.AddWeather(suite.dto)
-	suite.Require().NoError(err)
+	processWeather(suite.dto)
 	result, err := suite.db.GetWeatherByLocation("Berlin")
 	suite.Require().NoError(err)
 	suite.Equal(suite.dto, result)
@@ -116,8 +136,7 @@ func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation_NotFound() {
 }
 
 func (suite *DatabaseIntegrationSuite) TestGetWeatherByLocation_Error_in_Json() {
-	db := suite.db.(*Database).con
-	_, err := (*db).Do("SET", "Berlin", "not a json")
+	_, err := pool.Get().Do("SET", "Berlin", "not a json")
 	suite.Require().NoError(err)
 	result, err := suite.db.GetWeatherByLocation("Berlin")
 	suite.Require().Error(err)
