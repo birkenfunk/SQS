@@ -89,3 +89,8 @@ func (db *Database) GetWeatherByLocation(location string) (*dtos.WeatherDto, err
 	}
 	return &weather, nil
 }
+
+// SetWeatherAddChannel is for testing only
+func SetWeatherAddChannel(channel chan *dtos.WeatherDto) {
+	weatherAddChannel = channel
+}
