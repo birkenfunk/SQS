@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"codeberg.org/Birkenfunk/SQS/dtos"
-	"codeberg.org/Birkenfunk/SQS/mocks"
+	persistence2 "codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/persistence"
+	service2 "codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/service"
 	"codeberg.org/Birkenfunk/SQS/persistence"
 	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"github.com/stretchr/testify/suite"
@@ -15,8 +16,8 @@ import (
 type WeatherSuite struct {
 	suite.Suite
 	weather      IWeather
-	weatherMock  *mocks.IWeatherService
-	databaseMock *mocks.IDatabase
+	weatherMock  *service2.MockIWeatherService
+	databaseMock *persistence2.MockIDatabase
 	weatherDto   dtos.WeatherDto
 	chanel       chan *dtos.WeatherDto
 }
@@ -27,9 +28,9 @@ func TestWeatherSuite(t *testing.T) {
 
 func (suite *WeatherSuite) SetupTest() {
 	log.Info().Msg("Test")
-	suite.weatherMock = new(mocks.IWeatherService)
+	suite.weatherMock = new(service2.MockIWeatherService)
 	log.Info().Msg("Test2")
-	suite.databaseMock = new(mocks.IDatabase)
+	suite.databaseMock = new(persistence2.MockIDatabase)
 	log.Info().Msg("Test3")
 	suite.weather = &Weather{suite.weatherMock, suite.databaseMock}
 	suite.chanel = make(chan *dtos.WeatherDto)

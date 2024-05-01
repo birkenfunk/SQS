@@ -8,7 +8,7 @@ import (
 
 	"codeberg.org/Birkenfunk/SQS/business/handler"
 	"codeberg.org/Birkenfunk/SQS/dtos"
-	"codeberg.org/Birkenfunk/SQS/mocks"
+	"codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/business/logic"
 	"codeberg.org/Birkenfunk/SQS/testfixtures"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/suite"
@@ -17,7 +17,7 @@ import (
 type RouterSuite struct {
 	suite.Suite
 	router  IRouter
-	weather *mocks.IWeather
+	weather *logic.MockIWeather
 }
 
 func TestRouterSuite(t *testing.T) {
@@ -25,7 +25,7 @@ func TestRouterSuite(t *testing.T) {
 }
 
 func (rs *RouterSuite) SetupTest() {
-	rs.weather = new(mocks.IWeather)
+	rs.weather = new(logic.MockIWeather)
 	weatherHandler := handler.WeatherHandler{}
 	weatherHandler.SetWeather(rs.weather)
 	rs.router = &Router{

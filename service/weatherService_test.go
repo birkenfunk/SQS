@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"codeberg.org/Birkenfunk/SQS/mocks/codeberg.org/Birkenfunk/SQS/service"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,7 +11,6 @@ import (
 	"testing/iotest"
 
 	"codeberg.org/Birkenfunk/SQS/dtos"
-	"codeberg.org/Birkenfunk/SQS/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -35,7 +35,7 @@ func (b *NonClosableBody) Read(_ []byte) (n int, err error) {
 
 type WeatherServiceSuite struct {
 	suite.Suite
-	mockClient *mocks.HTTPClient
+	mockClient *service.MockHTTPClient
 	service    *WeatherService
 	dto        *dtos.WeatherDto
 }
@@ -45,7 +45,7 @@ func TestWeatherServiceSuite(t *testing.T) {
 }
 
 func (suite *WeatherServiceSuite) SetupTest() {
-	suite.mockClient = new(mocks.HTTPClient)
+	suite.mockClient = new(service.MockHTTPClient)
 	suite.service = &WeatherService{
 		client: suite.mockClient,
 	}

@@ -1,0 +1,8 @@
+with-expecter: true
+packages:
+  codeberg.org/Birkenfunk/SQS:
+      config:
+        all: true
+        recursive: True
+        exclude:
+          - vendor
