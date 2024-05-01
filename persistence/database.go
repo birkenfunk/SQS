@@ -29,7 +29,7 @@ func startWeatherConsumer() {
 }
 
 func InitDB() {
-	weatherAddChannel = make(chan *dtos.WeatherDto)
+	weatherAddChannel = make(chan *dtos.WeatherDto, 1000000)
 	pool = newPool()
 	go startWeatherConsumer()
 }
@@ -59,7 +59,12 @@ func processWeather(weather *dtos.WeatherDto) {
 	if err != nil {
 		log.Error().Err(err).Msg("Could not marshal weather")
 	}
-	_, err = pool.Get().Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
+	con := pool.Get()
+	_, err = con.Do("SET", weather.Location, weatherJSON, "EXAT", expTime.Unix())
+	err = con.Close()
+	if err != nil {
+		log.Error().Err(err).Msg("Could not close redis connection")
+	}
 	if err != nil {
 		log.Error().Err(err).Msg("Could not add weather to redis")
 	}
@@ -73,10 +78,15 @@ func NewDatabase() *Database {
 }
 
 func (db *Database) GetWeatherByLocation(location string) (*dtos.WeatherDto, error) {
-	result, err := pool.Get().Do("GET", location)
+	con := pool.Get()
+	result, err := con.Do("GET", location)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get weather from redis")
 		return nil, err
+	}
+	err = con.Close()
+	if err != nil {
+		log.Error().Err(err).Msg("Could not close redis connection")
 	}
 	if result == nil {
 		return nil, nil
