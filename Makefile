@@ -45,4 +45,7 @@ coverage_only:
 	head -n -1 build/coverage.md >> build/coverage.md.tmp
 	mv build/coverage.md.tmp build/coverage.md
 
+api_doc:
+	go run generate_doc.go
+
 .PHONY: generate_linux generate_windows generate_mac generate_all clean docker_image podman_image test
