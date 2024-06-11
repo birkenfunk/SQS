@@ -10,6 +10,23 @@ services:
       - REDIS_ARGS="--requirepass mypassword"
     volumes: 
       - cache:/data
+  external-api:
+    image: codeberg.org/birkenfunk/sqs-external-api:latest
+    restart: always
+    ports:
+      - '3000:3000'
+  api:
+    image: codeberg.org/birkenfunk/sqs/backend:latest
+    restart: always
+    ports:
+      - '4000:4000'
+    environment:
+      - PORT=4000
+      - REDIS_URL=cache:6379
+      - WEATHER_SERVICE_API_URL=http://external-api:3000
+    depends_on:
+      - cache
+      - external-api
 volumes:
   cache:
     driver: local

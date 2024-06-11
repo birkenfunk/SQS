@@ -7,7 +7,7 @@ config:
     - name: ramp-up
       duration: 60
       arrivalRate: 10
-      rampTo: 1000
+      rampTo: 400
     - name: fixed-arrival
       duration: 60
       arrivalCount: 100
