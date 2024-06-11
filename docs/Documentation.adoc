@@ -1,5 +1,6 @@
 = ARC 42 Documentation
 Birkenfunk
+:toc: left
 
 == Introduction and Goals
 
@@ -15,9 +16,11 @@ On top of this all functionality should be tested with unit tests, integration t
 
 === Quality Goals 
 
-The minimum test coverage of this project is 80%. Additionally all code should be under a static code analyze.
+The primary quality goal of this project is to have maintainable code. This means that the code should be easy to read and understand and easy to change.
 
-If any other technology was added it needs to be tested, e.g. if you add a dockerfile it has to be tested.
+Additionally the code should be tested with different methods to ensure that the code is working as expected and that changes are unlikely break the program. To ensure this the code should be tested with unit tests, integration tests and end2end tests. Additionally the code should be linted to ensure that the code is written in a consistent way.
+
+To ensure that the API has a high availability the API is tested with a load test.
 
 === Stakeholders
 [cols="1,1,1", options="header"]
@@ -128,6 +131,7 @@ image::.pictures/Quality Tree.png[]
 === Quality Scenarios 
 
 Respone time in idle state:
+
 * Source: User
 * Stimulus: User wants to see the weather
 * Environment: Idle state
@@ -136,12 +140,80 @@ Respone time in idle state:
 * Response Measure: The backend should respond in less than 50ms
 
 Response time in high load state:
+
 * Source: User
 * Stimulus: User wants to see the weather
 * Environment: High load state
 * Artifact: Backend
 * Response: The backend should respond in less than 5s
 * Response Measure: The backend should respond in less than 5s
+
+Change of DB via environment variable:
+The admin wants to migrate the DB to a new server
+
+* Source: Admin
+* Stimulus: Admin wants to change the DB
+* Environment: Any
+* Artifact: Backend
+* Response: The backend should change the DB after restart
+* Response Measure: The backend uses the new DB
+
+Change of DB technology:
+The developer wants to add a new DB technology
+
+* Source: Developer
+* Stimulus: Developer wants to change the DB technology
+* Environment: Any
+* Artifact: Backend
+* Response: The backend should use the new DB technology without much changes in the code the existing DB technology should still be supported 
+* Response Measure: The backend should use a new DB technology with a new release
+
+Adding new external weather API:
+The developer wants to add a new external weather API with a different interface
+
+* Source: Developer
+* Stimulus: Developer wants to add a new external weather API
+* Environment: Any
+* Artifact: Backend
+* Response: The backend should use the new external weather API
+* Response Measure: The backend should use the new external weather API with a new release
+
+Change of external weather API:
+The admin wants to change the url of the external weather API
+
+* Source: Admin
+* Stimulus: Admin wants to change the url of the external weather API
+* Environment: Any
+* Artifact: Backend
+* Response: The backend should change the url of the external weather API after restart
+* Response Measure: The backend uses the new url for the external weather API
+
+Change of weather API: The user wants to change the weather API
+
+* Source: User
+* Stimulus: User wants to change the weather API
+* Environment: Production
+* Artifact: Frontend
+* Response: The frontend should change the weather API
+* Response Measure: The frontend uses the new weather API
+
+Adding new endpoint: The developer wants to add a new endpoint
+
+* Source: Developer
+* Stimulus: Developer wants to add a new endpoint
+* Environment: Any
+* Artifact: Backend
+* Response: The backend should has new endpoints with a new release
+* Response Measure: The backend has new endpoints
+
+Using/ Supporting https: The user wants to access the API via https
+
+* Source: User
+* Stimulus: User wants to access the API via https
+* Environment: Production
+* Artifact: Frontend
+* Response: The frontend should use https to access the API
+* Response Measure: The frontend uses https to access the API
 
 == Risks and Technical Debts 
 
