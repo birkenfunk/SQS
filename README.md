@@ -11,13 +11,41 @@
 ## What is SQS?
 SQS is a subject at the University of Applied Sciences in Rosenheim.
 
-The goal of this project is to create a simple caching api for a webserver and then use different testing methods to test the system. E.g. Unit Tests, Integration Tests, E2E Tests, etc.
+A full documentation of the quality specifications can be found [here](./docs/Documentation.adoc).
 
 This Repository is only the backend the Frontend can be found [here](https://codeberg.org/Birkenfunk/SQS-Frontend)
 
-## How to run the project
+## How to get started
+
+This has to be done once to set up the project
+
 1. Clone the repository
 2. copy the `.env.example` file to `.env` and fill in the values
-3. run `docker-compose up --build`
-4. The server should now be running on `localhost:4000`
 
+## How to run the project
+1. run `docker-compose up --build`
+2. The server should now be running on `localhost:4000`
+
+## How to configure the project
+The project can be configured by changing the `.env` file. The following values can be set:
+- `PORT` The port the server should run on
+- `WEATHER_SERVICE_API_URL` The URL of the weather service
+- `REDIS_URL` The URL of the redis server
+
+## How to run the tests
+1. run `docker-compose -f integration.docker-compose.yml up`
+2. run make test
+
+## How to run the linter
+1. install [golangci-lint](https://golangci-lint.run/welcome/install/)
+2. run `golanci-lint run ./...`
+
+## How to run the coverage
+1. run `make coverage`
+2. open the file `coverage.html` in the build folder
+
+## Used Libraries
+- [Go-Chi](https://go-chi.io/#/) This is the router used in the project
+- [Redigo](https://github.com/gomodule/redigo) This is the redis client used in the project
+- [Godotenv](https://github.com/joho/godotenv) This is the library used to read the .env file
+- [Zerolog](https://github.com/rs/zerolog) This is the logging library used in the project
