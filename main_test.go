@@ -3,18 +3,18 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/docgen"
-	"github.com/go-chi/docgen/raml"
-	"github.com/rs/zerolog/log"
-	"gopkg.in/yaml.v3"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/docgen"
+	"github.com/go-chi/docgen/raml"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/suite"
+	"gopkg.in/yaml.v3"
 )
 
 type MainSuite struct {
@@ -71,12 +71,11 @@ func (ms *MainSuite) TestGenerateRAML() {
 	routes := initRoutes()
 
 	// Save the routes to a file
-	if err := os.Remove("routes.raml"); err != nil && !errors.Is(err, os.ErrNotExist) {
+	if err := os.Remove("routes.outRaml"); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Fatal().Err(err)
 	}
 
-	f, err := os.Create("routes.raml")
-
+	f, err := os.Create("routes.outRaml")
 	if err != nil {
 		log.Fatal().Err(err)
 	}
@@ -90,7 +89,7 @@ func (ms *MainSuite) TestGenerateRAML() {
 		MediaType: "application/json",
 	}
 
-	if err := chi.Walk(routes, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+	if err := chi.Walk(routes, func(method string, route string, handler http.Handler, _ ...func(http.Handler) http.Handler) error {
 		handlerInfo := docgen.GetFuncInfo(handler)
 		resource := &raml.Resource{
 			DisplayName: strings.ToUpper(method) + " " + route,
@@ -102,13 +101,12 @@ func (ms *MainSuite) TestGenerateRAML() {
 		log.Fatal().Msgf("error: %v", err)
 	}
 
-	raml, err := yaml.Marshal(ramlDocs)
-
+	outRaml, err := yaml.Marshal(ramlDocs)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
 
-	if _, err = f.Write(append([]byte("#%RAML 1.0\n---\n"), raml...)); err != nil {
+	if _, err = f.Write(append([]byte("#%RAML 1.0\n---\n"), outRaml...)); err != nil {
 		log.Fatal().Err(err)
 	}
 }
